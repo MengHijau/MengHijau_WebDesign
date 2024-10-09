@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perawatan Tanaman Hias</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            text-align: center; 
+            background-color: #f8f1f1; 
+            color: #333; 
+            padding: 20px; 
+        }
+        #headerImage {
+            max-width: 100%; 
+            height: auto;
+            margin-bottom: 20px;
+        }
+        #categoryMenu { 
+            margin-bottom: 20px; 
+        }
+        #categories {
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        #categories:hover {
+            border-color: #4CAF50;
+        }
+        #products { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            margin: 0 -10px; 
+        }
+        .product { 
+            border: 1px solid #ddd; 
+            border-radius: 10px; 
+            margin: 10px; 
+            width: 200px; 
+            background: #fff; 
+            cursor: pointer; 
+            transition: transform 0.3s, box-shadow 0.3s; 
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+        }
+        .product:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
+        }
+        .product img { 
+            width: 100%; 
+            aspect-ratio: 16 / 9; 
+            object-fit: cover; 
+            border-top-left-radius: 10px; 
+            border-top-right-radius: 10px; 
+        }
+        h3 { 
+            margin: 10px 0; 
+            font-weight: 700; 
+            color: #333; 
+        }
+        h4 { 
+            margin: 10px 0; 
+            font-weight: 400; 
+            color: #777; 
+            text-align: left;
+        }
+        button { 
+            padding: 10px 15px; 
+            background: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: background-color 0.3s; 
+            font-weight: bold; 
+        }
+        button:hover { 
+            background: #45a049; 
+        }
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.6); 
+        }
+        .modal-content { 
+            background: #fff; 
+            margin: 15% auto; 
+            padding: 20px; 
+            border-radius: 10px; 
+            width: 90%; 
+            max-width: 400px; 
+            animation: fadeIn 0.3s; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <img id="headerImage" src="BORCELLE (1)-modified (1).png" alt="Perawatan Tanaman Hias"> 
+    
+    <div id="categoryMenu">
+        <label for="categories">Pilih Kategori:</label>
+        <select id="categories" onchange="filterProducts()">
+            <option value="all">Semua</option>
+            <option value="indoor">Tanaman Dalam Ruangan</option>
+            <option value="outdoor">Tanaman Luar Ruangan</option>
+        </select>
+    </div>
+    <div id="products"></div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span onclick="closeModal()" style="cursor: pointer; font-size: 24px;">&times;</span>
+            <img id="modalImage" src="" alt="" style="width: 100%; border-radius: 10px;">
+            <h3 id="modalName"></h3>
+            <h4 id="detailProduk"></h4>
+            <button onclick="handleThankYou()">Terima Kasih</button>
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            { 
+                nama: "Monstera Deliciosa", 
+                gambar: "https://petgardenbali.com/wp-content/uploads/2021/11/How-to-Care-for-a-Monstera-Houseplant-scaled.jpeg", 
+                deskripsi: "Tanaman hias yang mudah dirawat, cocok untuk indoor. <br><strong>Perawatan:</strong> Siram setiap minggu dan tempatkan di tempat yang cukup cahaya, hindari sinar matahari langsung.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Anggrek", 
+                gambar: "https://superuniversodasplantas.com.br/wp-content/uploads/2024/02/9a4acdb7a81c00ada2b9968c8eefe40c-jpg.webp", 
+                deskripsi: "Tanaman yang memiliki daun besar dan indah, ideal untuk ruang tamu. <br><strong>Perawatan:</strong> Air secukupnya, tidak terlalu lembab, dan letakkan di tempat dengan cahaya tidak langsung.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Cactus", 
+                gambar: "https://asset.kompas.com/crops/c3wXURRfY55g4peY4QgpHp2VopI=/0x102:1085x825/1200x800/data/photo/2021/08/22/612249c556579.jpg", 
+                deskripsi: "Tanaman yang tahan terhadap cuaca panas dan minim perawatan. <br><strong>Perawatan:</strong> Siram setiap 2-3 minggu sekali, dan tempatkan di bawah sinar matahari langsung.", 
+                kategori: "outdoor" 
+            },
+            { 
+                nama: "Lavender", 
+                gambar: "https://tse3.mm.bing.net/th?id=OIP.MLFbQutD0sYeMayNDMvM9AHaE7&pid=Api&P=0&h=180", 
+                deskripsi: "Tanaman aromatik yang indah, cocok untuk taman luar. <br><strong>Perawatan:</strong> Siram secukupnya, jangan terlalu lembab, dan letakkan di tempat yang terkena sinar matahari.", 
+                kategori: "outdoor" 
+            },
+            { 
+                nama: "Venus Flytrap", 
+                gambar: "https://mediatani.co/wp-content/uploads/2021/11/C1E52273-F18D-434C-8184-CE363F93150D.jpeg", 
+                deskripsi: "Tanaman pemakan serangga yang cukup eksotis. <br><strong>Perawatan:</strong> Siram dengan air lunak dan letakkan di tempat yang lembap dan terang.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Bonsai", 
+                gambar: "https://png.pngtree.com/thumb_back/fw800/background/20240701/pngtree-small-tree-setting-put-it-in-a-small-pot-as-a-image_15838602.jpg", 
+                deskripsi: "Tanaman mini yang bisa diletakkan di dalam atau luar ruangan. <br><strong>Perawatan:</strong> Siram secara teratur, memangkas cabang dan daun untuk bentuk yang diinginkan.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Geranium", 
+                gambar: "https://tse3.mm.bing.net/th?id=OIP.M1BCztxb3nJAcNljdTkHDwHaE8&pid=Api&P=0&h=180", 
+                deskripsi: "Tanaman berbunga yang indah, cocok untuk taman luar. <br><strong>Perawatan:</strong> Siram secara teratur dan berikan pupuk setiap bulan.", 
+                kategori: "outdoor" 
+            },
+            { 
+                nama: "Peace Lily", 
+                gambar: "https://lzd-img-global.slatic.net/g/ff/kf/Se7426691ea324fd7b576ab2f02975e2aB.jpg_720x720q80.jpg", 
+                deskripsi: "Tanaman hias yang populer dengan bunga putih yang menawan. <br><strong>Perawatan:</strong> Jaga tanah tetap lembab dan letakkan di tempat yang teduh.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Spider Plant", 
+                gambar: "https://tse2.mm.bing.net/th?id=OIP.6DvAoYpCrmHT_ynlL40bWgHaHa&pid=Api&P=0&h=180", 
+                deskripsi: "Tanaman yang mudah tumbuh dan memiliki manfaat udara bersih. <br><strong>Perawatan:</strong> Siram sekali seminggu dan letakkan di tempat yang cerah.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Rosemary", 
+                gambar: "https://www.naturebring.com/wp-content/uploads/2017/07/Rosemary-wall.jpg", 
+                deskripsi: "Tanaman herbal yang juga bisa menjadi hiasan luar ruangan. <br><strong>Perawatan:</strong> Siram secara teratur dan letakkan di tempat yang terkena sinar matahari.", 
+                kategori: "outdoor" 
+            },
+           
+            { 
+                nama: "Fiddle Leaf Fig", 
+                gambar: "https://down-id.img.susercontent.com/file/id-11134201-7r98s-lri676bs1pxv20", 
+                deskripsi: "Tanaman dengan daun besar dan lebar, cocok untuk dekorasi rumah. <br><strong>Perawatan:</strong> Siram saat tanah mulai kering dan tempatkan di tempat terang.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Pothos", 
+                gambar: "https://media.istockphoto.com/id/1250006358/id/foto/tropis-epipremnum-aureum-marble-queen-pothos-tanaman-rumah-dengan-variegasi-putih-di-pot-bunga.jpg?s=1024x1024&w=is&k=20&c=3FWcsQb49m6CHfbdfbJQz5dxYKmqiKqlmvHRx4oYxFw=", 
+                deskripsi: "Tanaman merambat yang sangat mudah dirawat. <br><strong>Perawatan:</strong> Siram saat tanah mulai kering, dapat tumbuh di tempat teduh.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Snake Plant", 
+                gambar: "https://tse1.mm.bing.net/th?id=OIP.HEBB1MpFVDHILtc1LZ_YMgHaHa&pid=Api&P=0&h=180", 
+                deskripsi: "Tanaman tahan lama yang dapat tumbuh di berbagai kondisi. <br><strong>Perawatan:</strong> Siram setiap 2-3 minggu sekali, sangat toleran terhadap kekeringan.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Kantong Semar", 
+                gambar: "https://mediatani.co/wp-content/uploads/2022/01/kantong-semar.jpg", 
+                deskripsi: "Tanaman kantong semar pemikat serangga. <br><strong>Perawatan:</strong> Siram dengan air AC dan letakkan di tempat yang lembap dan terang.", 
+                kategori: "outdoor" 
+            },
+            { 
+                nama: "Calathea", 
+                gambar: "https://interiordesign.id/wp-content/uploads/2021/04/jenis-jenis-calathea4.jpg", 
+                deskripsi: "Tanaman dengan pola daun yang unik. <br><strong>Perawatan:</strong> Jaga tanah tetap lembab, tidak suka sinar matahari langsung.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Aloe Vera", 
+                gambar: "https://greenripegarden.com/wp-content/uploads/2020/04/Aloe-Vera-Plant-2048x1365.jpg", 
+                deskripsi: "Tanaman sukulen yang juga memiliki manfaat kesehatan. <br><strong>Perawatan:</strong> Siram setiap 2-3 minggu sekali dan tempatkan di tempat yang cerah.", 
+                kategori: "outdoor" 
+            },
+            { 
+                nama: "Bamboo Palm", 
+                gambar: "https://s1.bukalapak.com/img/6554580022/w-1000/Tanaman_Palem_Kuning_.jpg", 
+                deskripsi: "Tanaman palem yang baik untuk meningkatkan kelembapan udara. <br><strong>Perawatan:</strong> Siram secara teratur dan jaga agar tanah tetap lembab.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Hibiscus", 
+                gambar: "https://i2.wp.com/dekoruma.blog/wp-content/uploads/2018/06/Pink-Hibiscus-Flower-Wallpapers-3.jpg?fit=1600%2C1000&ssl=1", 
+                deskripsi: "Tanaman berbunga yang indah, cocok untuk taman luar. <br><strong>Perawatan:</strong> Siram secara teratur, tempatkan di tempat yang terkena sinar matahari.", 
+                kategori: "outdoor" 
+            },
+            { 
+                nama: "Zamioculcas", 
+                gambar: "https://media.istockphoto.com/id/1252661530/id/foto/tanaman-rumah-zamioculcas-di-ambang-jendela-konsep-berkebun-di-rumah.jpg?s=1024x1024&w=is&k=20&c=gsRZwEFUb-gKEIN7X1YoA52hM5HeuSHQ7Uk2RaHkTb4=", 
+                deskripsi: "Tanaman yang sangat tahan terhadap kondisi kering. <br><strong>Perawatan:</strong> Siram saat tanah kering dan tempatkan di tempat yang teduh.", 
+                kategori: "indoor" 
+            },
+            { 
+                nama: "Jasmine", 
+                gambar: "https://i.pinimg.com/originals/d0/6b/62/d06b62a7d6ce4ef5aca37425037f6578.jpg", 
+                deskripsi: "Tanaman berbunga harum yang cocok untuk taman. <br><strong>Perawatan:</strong> Siram secara teratur dan tempatkan di tempat yang terkena sinar matahari.", 
+                kategori: "outdoor" 
+            }
+        ];
+        
+        function displayProducts(filter = "all") {
+            const productsContainer = document.getElementById('products');
+            productsContainer.innerHTML = ''; 
+            const filteredProducts = filter === "all" ? products : products.filter(product => product.kategori === filter);
+            
+            filteredProducts.forEach((item) => {
+                const div = document.createElement('div');
+                div.className = 'product';
+                div.innerHTML = `<img src="${item.gambar}" alt="${item.nama}"><h3>${item.nama}</h3>`;
+                div.onclick = () => openModal(item.nama, item.gambar, item.deskripsi);
+                productsContainer.appendChild(div);
+            });
+        }
+
+        function filterProducts() {
+            const selectedCategory = document.getElementById('categories').value;
+            displayProducts(selectedCategory);
+        }
+
+        function openModal(name, img, description) {
+            document.getElementById('modalName').innerText = name;
+            document.getElementById('modalImage').src = img;
+            document.getElementById('detailProduk').innerHTML = description; 
+            document.getElementById('myModal').style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById('myModal').style.display = "none";
+        }
+
+        function handleThankYou() {
+            closeModal(); 
+            alert("Happy Planting !"); 
+        }
+
+        window.onclick = (event) => {
+            if (event.target === document.getElementById('myModal')) closeModal();
+        };
+
+        
+        displayProducts();
+    </script>
+    
+</body>
+</html>
